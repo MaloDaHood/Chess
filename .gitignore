@@ -1,5 +1,9 @@
 # VSCode stuff
 *.code-workspace
+.vscode/
+
+# Testing directory
+test/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
