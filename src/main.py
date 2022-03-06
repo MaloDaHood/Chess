@@ -7,5 +7,5 @@ if __name__ == "__main__":
     pygame.init()
     game = Game()
     board = Board()
-    board.draw()
+    board.display()
     game.run()
