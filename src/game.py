@@ -8,12 +8,10 @@ class Game:
         
     def get_window(self) -> pygame.surface.Surface:
         return self.window
+        
+    def is_over(self) -> bool:
+        #if game is not over
+        return False
     
-    def run(self) -> None:
-        running = True
-        while(running) :
-            for event in pygame.event.get() :
-                if event.type == pygame.QUIT :
-                    running = False
-                pygame.display.flip()
-        pygame.quit()
+    def update(self) -> None:
+        pygame.display.flip()
