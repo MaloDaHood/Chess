@@ -3,9 +3,12 @@ import pygame
 class Game:
     
     def __init__(self) -> None:
-        pygame.display.set_mode((800, 800))
+        self.window = pygame.display.set_mode((800, 800))
         pygame.display.set_caption("Chess")
         
+    def get_window(self) -> pygame.surface.Surface:
+        return self.window
+    
     def run(self) -> None:
         running = True
         while(running) :
