@@ -12,9 +12,7 @@ class Board:
         background = pygame.image.load("assets/board.png")
         background = pygame.transform.scale(background, (800, 800))
         window.blit(background, (0,0))
-        pygame.display.flip()
         
     def display_piece(self, window, piece :Piece) -> None:
         if piece.isAlive:
             window.blit(piece.get_image(), piece.get_position())
-            pygame.display.flip()
