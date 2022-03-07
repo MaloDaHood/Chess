@@ -7,23 +7,8 @@ if __name__ == "__main__":
     pygame.init()
     game = Game()
     board = Board()
-    
-    pawns = rooks = []
-    x = 0
-    for i in range(2):
-        color = "B" if i == 0 else "W"
-        
-        # Creation of all the pawns
-        for j in range(8):
-            y = 100 if i == 0 else 600
-            pawns.append(Pawn(color, (x + (j * 100), y)))
-            
-        # Creation of all the rooks
-        for j in range(2):
-            y = 0 if i == 0 else 700
-            rooks.append(Rook(color, (x + (j * 700), y)))
-            
-        x = 0
+
+    pieces = game.spawn_pieces(board.get_board())
     
     # Main game loop
     running = True
@@ -33,9 +18,8 @@ if __name__ == "__main__":
                 running = False
                 
         board.display_board(game.get_window())
-        board.display_pieces(game.get_window(), pawns)
-        board.display_pieces(game.get_window(), rooks)
-        
+        board.display_pieces(game.get_window(), pieces)
+
         game.update()
         
         if game.is_over():
