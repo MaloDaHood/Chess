@@ -22,7 +22,7 @@ class Board:
         self.background = pygame.image.load("assets/board.png")
         self.background = pygame.transform.scale(self.background, (800, 800))
     
-    def get_board(self) -> list[list[str]]:
+    def get_board(self) -> "list[list[str]]":
         return self.board
     
     # Displays the board on full window
@@ -30,7 +30,7 @@ class Board:
         window.blit(self.background, (0,0))
         
     # Displays all pieces at their own positions (in pixels)
-    def display_pieces(self, window :pygame.surface.Surface, pieces :dict[str, Piece]) -> None:
+    def display_pieces(self, window :pygame.surface.Surface, pieces :"dict[str, Piece]") -> None:
         for id in pieces:
             if pieces[id].is_alive():
                 window.blit(pieces[id].get_image(), pieces[id].get_position())

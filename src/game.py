@@ -27,7 +27,7 @@ class Game:
         pygame.display.flip()
     
     # Creates a dictionnary containing all the different pieces linked to their id
-    def spawn_pieces(self, board :list[list[str]]) -> dict[str, Piece]:
+    def spawn_pieces(self, board :"list[list[str]]") -> "dict[str, Piece]":
             
         pieces = {}
         
