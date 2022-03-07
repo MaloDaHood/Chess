@@ -32,5 +32,5 @@ class Board:
     # Displays all pieces at their own positions (in pixels)
     def display_pieces(self, window :pygame.surface.Surface, pieces :dict[str, Piece]) -> None:
         for id in pieces:
-            if pieces[id].isAlive:
+            if pieces[id].is_alive():
                 window.blit(pieces[id].get_image(), pieces[id].get_position())

@@ -1,3 +1,4 @@
+from pickle import FALSE
 import pygame
 from piece import *
 
@@ -6,13 +7,21 @@ class Game:
     def __init__(self) -> None:
         self.window = pygame.display.set_mode((800, 800))
         pygame.display.set_caption("Chess")
+        self.running = True
         
     def get_window(self) -> pygame.surface.Surface:
         return self.window
         
-    def is_over(self) -> bool:
-        #if game is not over
-        return False
+    def is_running(self) -> bool:
+        return self.running
+    
+    def stop(self) -> None:
+        self.running = False
+        
+    def check_if_over(self) -> None:
+        # if game is not over
+        # self.running = True
+        pass
     
     def update(self) -> None:
         pygame.display.flip()

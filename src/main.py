@@ -8,21 +8,21 @@ if __name__ == "__main__":
     game = Game()
     board = Board()
 
+    window = game.get_window()
+    
     pieces = game.spawn_pieces(board.get_board())
     
     # Main game loop
-    running = True
-    while(running):
+    while(game.is_running()):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                game.stop()
                 
-        board.display_board(game.get_window())
-        board.display_pieces(game.get_window(), pieces)
+        board.display_board(window)
+        board.display_pieces(window, pieces)
 
         game.update()
         
-        if game.is_over():
-            running = False
+        game.check_if_over()
     
     pygame.quit()
