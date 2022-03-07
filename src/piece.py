@@ -5,7 +5,7 @@ sys.path.append('../')
 class Piece:
     def __init__(self, position :tuple[int , int], id :str) -> None:
         self.position = position
-        self.id = id # Ex: RB1 -> Rook Black 1
+        self.id = id # Ex: "RB1" -> Rook Black 1
         self.color = id[1] # Either "B" or "W"
         self.isAlive = True
         self.hasMoved = False
@@ -30,7 +30,7 @@ class Piece:
     
     #! NEEDS TO BE A METHOD INSIDE SUB-CLASSES
     # Moves the piece to a different position
-    def move_to(self, position :tuple) -> bool:
+    def move_to(self, position :tuple[int, int]) -> bool:
         # If move is legal
         self.position = position
         self.hasMoved = True;

@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 import pygame
 from piece import *
 
@@ -18,9 +17,10 @@ class Game:
     def update(self) -> None:
         pygame.display.flip()
     
-    def spawn_pieces(self, board :list[list[str]]) -> list[Piece]:
+    # Creates a dictionnary containing all the different pieces linked to their id
+    def spawn_pieces(self, board :list[list[str]]) -> dict[str, Piece]:
             
-        pieces = []
+        pieces = {}
         
         for i in range(len(board)):
 
@@ -33,21 +33,21 @@ class Game:
                     pass
                 
                 elif id[0] == "P":
-                    pieces.append(Pawn(coord, id))
+                    pieces[id] = (Pawn(coord, id))
                     
                 elif id[0] == "R":
-                    pieces.append(Rook(coord, id))
+                    pieces[id] = (Rook(coord, id))
                     
                 elif id[0] == "H":
-                    pieces.append(Knight(coord, id))
+                    pieces[id] = (Knight(coord, id))
                     
                 elif id[0] == "B":
-                    pieces.append(Bishop(coord, id))
+                    pieces[id] = (Bishop(coord, id))
                     
                 elif id[0] == "Q":
-                    pieces.append(Queen(coord, id))
+                    pieces[id] = (Queen(coord, id))
                     
                 elif id[0] == "K":
-                    pieces.append(King(coord, id))
+                    pieces[id] = (King(coord, id))
                     
         return pieces
