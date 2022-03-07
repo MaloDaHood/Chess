@@ -3,19 +3,30 @@ import sys
 sys.path.append('../')
 
 class Piece:
-    def __init__(self, color :str, position :tuple, id :str) -> None:
-        self.color = color # Either "B" or "W"
+    def __init__(self, position :tuple[int , int], id :str) -> None:
         self.position = position
         self.id = id # Ex: RB1 -> Rook Black 1
+        self.color = id[1] # Either "B" or "W"
         self.isAlive = True
         self.hasMoved = False
-        self.image = pygame.image.load("assets/blank.png")
+        self.image = pygame.image.load("assets/" + id[:-1] + ".png")
         
-    def get_position(self) -> tuple:
+    def get_position(self) -> tuple[int, int]:
         return self.position
+    
+    def get_id(self) -> str:
+        return self.id
     
     def get_image(self) -> pygame.surface.Surface:
         return self.image
+    
+    def is_alive(self) -> bool:
+        return self.isAlive
+    
+    def die(self) -> None:
+        self.isAlive = False
+    
+    
     
     #! NEEDS TO BE A METHOD INSIDE SUB-CLASSES
     # Moves the piece to a different position
@@ -25,41 +36,32 @@ class Piece:
         self.hasMoved = True;
         return True
     
-    def die(self) -> None:
-        self.isAlive = False
-        
-    def is_alive(self) -> bool:
-        return self.isAlive
-    
-    def get_id(self) -> str:
-        return self.id
-    
 class King(Piece):
-    def __init__(self, color :str, position :tuple, id :str) -> None:
-        super().__init__(color, position, id)
-        self.image = pygame.image.load("assets/king" + self.color + ".png")
+    def __init__(self, position :tuple[int , int], id :str) -> None:
+        super().__init__(position, id)
+        pass
         
 class Queen(Piece):
-    def __init__(self, color :str, position :tuple, id :str) -> None:
-        super().__init__(color, position, id)
-        self.image = pygame.image.load("assets/queen" + self.color + ".png")
+    def __init__(self, position :tuple[int , int], id :str) -> None:
+        super().__init__(position, id)
+        pass
     
 class Rook(Piece):
-    def __init__(self, color :str, position :tuple, id :str) -> None:
-        super().__init__(color, position, id)
-        self.image = pygame.image.load("assets/rook" + self.color + ".png")
+    def __init__(self, position :tuple[int , int], id :str) -> None:
+        super().__init__(position, id)
+        pass
         
 class Bishop(Piece):
-    def __init__(self, color :str, position :tuple, id :str) -> None:
-        super().__init__(color, position, id)
-        self.image = pygame.image.load("assets/bishop" + self.color + ".png")
-        
+    def __init__(self, position :tuple[int , int], id :str) -> None:
+        super().__init__(position, id)
+        pass        
+    
 class Knight(Piece):
-    def __init__(self, color :str, position :tuple, id :str) -> None:
-        super().__init__(color, position, id)
-        self.image = pygame.image.load("assets/knight" + self.color + ".png")
-        
+    def __init__(self, position :tuple[int , int], id :str) -> None:
+        super().__init__(position, id)
+        pass
+            
 class Pawn(Piece):
-    def __init__(self, color :str, position :tuple, id :str) -> None:
-        super().__init__(color, position, id)
-        self.image = pygame.image.load("assets/pawn" + self.color + ".png")
+    def __init__(self, position :tuple[int , int], id :str) -> None:
+        super().__init__(position, id)
+        pass
