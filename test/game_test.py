@@ -1,0 +1,185 @@
+import pygame
+from piece_test import *
+from board_test import Board
+
+class Game:
+    
+    def __init__(self) -> None:
+        # We create the game window
+        self.window = pygame.display.set_mode((800, 800))
+        pygame.display.set_caption("Chess")
+        
+        self.running = True
+        self.dragging = False
+        self.drag_origin = (-1, -1)
+        self.turn = "W"
+        
+    # Returns the game window
+    def get_window(self) -> pygame.surface.Surface:
+        return self.window
+        
+    # Returns True if the game is running
+    def is_running(self) -> bool:
+        return self.running
+        
+    # Returns True if the game is over
+    def check_if_over(self) -> None:
+        # if game is not over
+        # self.running = True
+        pass
+    
+    # Updates the game window
+    def update(self) -> None:
+        pygame.display.flip()
+        
+    # Changes the state of self.dragging
+    def switch_dragging(self) -> None:
+        self.dragging = not self.dragging
+        
+    # Returns if the player is currently dragging a piece
+    def is_dragging(self) -> bool:
+        return self.dragging
+    
+    # Returns the origin coordinates of the drag
+    def get_drag_origin(self) -> "tuple[int, int]":
+        return self.drag_origin
+        
+    # Creates a dictionnary containing all the different pieces linked to their id
+    def spawn_pieces(self, board :"list[list[str]]") -> "dict[str, Piece]":
+            
+        pieces = {}
+        
+        # For each line
+        for i in range(len(board)):
+
+            # For each element
+            for j in range(len(board[i])):
+                
+                # The current id
+                id = board[i][j]
+                
+                # Check if the id is empty
+                if id == "   ":
+                    continue
+                
+                # Check for the first letter of each id to know what kind of piece it is
+                elif id[0] == "P":
+                    pieces[id] = (Pawn((i, j), id))
+                    
+                elif id[0] == "R":
+                    pieces[id] = (Rook((i, j), id))
+                    
+                elif id[0] == "H":
+                    pieces[id] = (Knight((i, j), id))
+                    
+                elif id[0] == "B":
+                    pieces[id] = (Bishop((i, j), id))
+                    
+                elif id[0] == "Q":
+                    pieces[id] = (Queen((i, j), id))
+                    
+                elif id[0] == "K":
+                    pieces[id] = (King((i, j), id))
+                    
+        return pieces
+    
+    # Converts the coordinates from pixels to board indexes
+    def convert_pos(self, position :"tuple[int, int]") -> "tuple[int, int]":
+        
+        # Coordinates in pixels
+        x, y = position[0], position[1]
+        
+        i = -1
+        new_position = []
+            
+        # For x then y
+        for k in [x, y]:
+            
+            # Check if the value is 3 digits long 
+            if len(str(k)) == 3:
+                # We keep the first digit as the new value
+                i = int(str(k)[0])
+                
+            else:
+                i = 0
+                
+            new_position.append(i)
+            
+        # We switch the position of the coordinates and retun it
+        return tuple(new_position)[::-1]
+    
+    def handle_inputs(self, board :Board, pieces :"dict[str, Piece]") -> None:
+        
+        # We check each event happening in the window
+        for event in pygame.event.get():
+            
+            if event.type == pygame.QUIT:
+                self.running = False
+            
+            # We check if the mouse button is pushed or released        
+            elif event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.MOUSEBUTTONUP :
+                self.handle_drag(board, pieces, event.type == pygame.MOUSEBUTTONDOWN)
+            
+    # Drives all the logic behind the dragging mechanic
+    def handle_drag(self, board :Board, pieces :"dict[str, Piece]", mouse_down :bool) -> None:
+            
+        # We check if the mouse button is pushed
+        if mouse_down:
+            
+            # We check if the player is not already dragging
+            if not self.dragging:
+                
+                # We get the coodinates of the origin of the drag
+                self.drag_origin = self.convert_pos(pygame.mouse.get_pos())
+                
+                # Debug
+                print("Origin on " + str(self.drag_origin[0]) + "/" + str(self.drag_origin[1]) + " -> " + board.get_id(self.drag_origin))
+                
+                # We switch to self.dragging = True if the player moved the right color
+                self.dragging = board.get_id(self.drag_origin)[1] == self.turn
+                
+                # If we are dragging we toggle it on the piece object
+                if self.dragging:
+                    pieces[board.get_id(self.drag_origin)].set_drag(True)
+        
+        # Otherwise when the mouse button is released
+        else:
+        
+            # We check if the player is dragging
+            if self.dragging:
+                
+                # We get the coodinates of the destination of the drag
+                destination = self.convert_pos(pygame.mouse.get_pos())
+                
+                # Object representing the piece that is on the origin coordinates
+                origin_piece = pieces[board.get_id(self.drag_origin)]
+                
+                # Debug
+                print("Destination on " + str(destination[0]) + "/" + str(destination[1]) + " -> " + board.get_id(destination))
+                        
+                # We check if the origin contains a piece and if the destination is empty                
+                if board.get_id(self.drag_origin)[0].isalpha() and board.get_id(destination) == "   ":
+                    
+                    # We stop the piece from being in dragging state
+                    origin_piece.set_drag(False)
+                    
+                    # Sets the position value back to the origin 
+                    origin_piece.set_position(self.drag_origin)
+                    
+                    # Check if we can move the piece to the destination on the window
+                    if origin_piece.move_to(board, destination):
+                    
+                        # We move the piece to the destination on the board
+                        board.move_piece(self.drag_origin, destination)
+                        
+                        # We switch turns
+                        self.turn = "W" if self.turn == "B" else "B"
+                    
+                else:
+                    # We put the piece back on the origin
+                    origin_piece.set_position(self.drag_origin)
+                    
+                    # We stop the piece from being in dragging state
+                    origin_piece.set_drag(False)
+                    
+                self.dragging = False
