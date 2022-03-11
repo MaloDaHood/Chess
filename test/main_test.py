@@ -18,6 +18,8 @@ if __name__ == "__main__":
         
         game.handle_inputs(board, pieces)
                     
+        board.display_board(window)
+        
         # We Check if the player is currently dragging a piece
         if game.is_dragging():
             # We check if the player has selected an empty spot as the origin
@@ -27,9 +29,9 @@ if __name__ == "__main__":
             # We place the piece's image at the middle of the pointer
             else:
                 pieces[board.get_id(game.get_drag_origin())].center_on_pointer()
-                
-        board.display_board(window)
-        board.display_marker(window, game.get_drag_origin(), game.is_dragging())
+
+            board.display_markers(window, pieces[game.get_drag_id()].get_legal_moves(board), game.get_drag_origin())
+            
         board.display_pieces(window, pieces)
 
         # We update the window each frame

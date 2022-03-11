@@ -12,6 +12,7 @@ class Game:
         self.running = True
         self.dragging = False
         self.drag_origin = (-1, -1)
+        self.drag_id = "   "
         self.turn = "W"
         
     # Returns the game window
@@ -43,6 +44,9 @@ class Game:
     # Returns the origin coordinates of the drag
     def get_drag_origin(self) -> "tuple[int, int]":
         return self.drag_origin
+        
+    def get_drag_id(self) -> str:
+        return self.drag_id
         
     # Creates a dictionnary containing all the different pieces linked to their id
     def spawn_pieces(self, board :"list[list[str]]") -> "dict[str, Piece]":
@@ -129,18 +133,20 @@ class Game:
             # We check if the player is not already dragging
             if not self.dragging:
                 
-                # We get the coodinates of the origin of the drag
+                # We get the coodinates of the origin of the drag relative to the board
                 self.drag_origin = self.convert_pos(pygame.mouse.get_pos())
                 
+                self.drag_id = board.get_id(self.drag_origin)
+                
                 # Debug
-                print("Origin on " + str(self.drag_origin[0]) + "/" + str(self.drag_origin[1]) + " -> " + board.get_id(self.drag_origin))
+                print("Origin on " + str(self.drag_origin[0]) + "/" + str(self.drag_origin[1]) + " -> " + self.drag_id)
                 
                 # We switch to self.dragging = True if the player moved the right color
-                self.dragging = board.get_id(self.drag_origin)[1] == self.turn
+                self.dragging = self.drag_id[1] == self.turn
                 
                 # If we are dragging we toggle it on the piece object
                 if self.dragging:
-                    pieces[board.get_id(self.drag_origin)].set_drag(True)
+                    pieces[self.drag_id].set_drag(True)
         
         # Otherwise when the mouse button is released
         else:
@@ -148,17 +154,17 @@ class Game:
             # We check if the player is dragging
             if self.dragging:
                 
-                # We get the coodinates of the destination of the drag
+                # We get the coodinates of the destination of the drag relative to the board
                 destination = self.convert_pos(pygame.mouse.get_pos())
                 
                 # Object representing the piece that is on the origin coordinates
-                origin_piece = pieces[board.get_id(self.drag_origin)]
+                origin_piece = pieces[self.drag_id]
                 
                 # Debug
                 print("Destination on " + str(destination[0]) + "/" + str(destination[1]) + " -> " + board.get_id(destination))
                         
                 # We check if the origin contains a piece and if the destination is empty                
-                if board.get_id(self.drag_origin)[0].isalpha() and board.get_id(destination) == "   ":
+                if self.drag_id[0].isalpha() and board.get_id(destination) == "   ":
                     
                     # We stop the piece from being in dragging state
                     origin_piece.set_drag(False)
