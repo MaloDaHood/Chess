@@ -1,3 +1,4 @@
+from os import R_OK
 from turtle import position
 import pygame
 from board_test import Board
@@ -82,10 +83,91 @@ class King(Piece):
         super().__init__(position, id)
         pass
         
+    def get_legal_moves(self, board: Board) -> "list[tuple[int, int]]":
+        
+        legal_moves = []
+        
+        
+        
+        return legal_moves
+        
 class Queen(Piece):
     def __init__(self, position :"tuple[int , int]", id :str) -> None:
         super().__init__(position, id)
         pass
+    
+    def get_legal_moves(self, board: Board) -> "list[tuple[int, int]]":
+        
+        legal_moves = []
+                
+        #! Code from Bishop class
+        # We check UP/LEFT then DOWN/RIGHT then UP/RIGHT then DOWN/LEFT
+        for limit_x, limit_y, x, y in zip([-1, 8, -1, 8], [-1, 8, 8, -1], [-1, 1, -1, 1], [-1, 1, 1, -1]):
+            
+            offset_x = x
+            offset_y = y
+
+            # As long as the neighbouring case is in the board
+            while (self.position[0] + offset_x) != limit_x and (self.position[1] + offset_y) != limit_y:
+                
+                next_case_pos = (self.position[0] + offset_x, self.position[1] + offset_y)
+                
+                # We check if the color of the id on the case is different from the piece's (can be a " ")
+                if board.get_id(next_case_pos)[1] != self.color:
+                    
+                    # We add the move to the list of legal moves
+                    legal_moves.append(next_case_pos)
+                    
+                    # We check if it was a piece and not a blank
+                    if board.get_id(next_case_pos)[0].isalpha():
+                        
+                        # We break the loop as we can't go further
+                        break
+                
+                # If the piece is the same color
+                else:
+                    # We break the loop as we can't go further
+                    break
+                    
+                # We increase the offsets by their value (depends on the direction)
+                offset_x += x
+                offset_y += y
+            
+        #! Code from Rook class    
+        # We check UP then DOWN then RIGHT then LEFT
+        for limit, pos, x, y in zip([-1, 8, 8, -1], [0, 0, 1, 1], [-1, 1, 0, 0], [0, 0, 1, -1]):
+            
+            # How much we increase the x value
+            offset_x = x
+            offset_y = y
+
+            # As long as the neighbouring case is in the board
+            while (self.position[pos] + (offset_x + offset_y)) != limit:
+                
+                next_case_pos = (self.position[0] + offset_x, self.position[1] + offset_y)
+                
+                # We check if the color of the id on the case is different from the piece's (can be a " ")
+                if board.get_id(next_case_pos)[1] != self.color:
+                    
+                    # We add the move to the list of legal moves
+                    legal_moves.append(next_case_pos)
+                    
+                    # We check if it was a piece and not a blank
+                    if board.get_id(next_case_pos)[0].isalpha():
+                        
+                        # We break the loop as we can't go further
+                        break
+                    
+                # If the piece is the same color
+                else:
+                    # We break the loop as we can't go further
+                    break
+                            
+                # We increase the offset by one
+                offset_x += x
+                offset_y += y
+        
+        return legal_moves
     
 class Bishop(Piece):
     def __init__(self, position :"tuple[int , int]", id :str) -> None:
