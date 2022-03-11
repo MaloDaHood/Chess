@@ -145,27 +145,26 @@ class Rook(Piece):
         
         legal_moves = []
         
-        for limit, dir in zip([-1, 8], [-1, 1]):
-           
-        #! UP and DOWN
+        # We check UP then DOWN then RIGHT then LEFT
+        for limit, pos, x, y in zip([-1, 8, 8, -1], [0, 0, 1, 1], [-1, 1, 0, 0], [0, 0, 1, -1]):
             
             # How much we increase the x value
-            offset = dir
+            offset_x = x
+            offset_y = y
 
             # As long as the neighbouring case is in the board
-            while (self.position[0] + offset) != limit:
+            while (self.position[pos] + (offset_x + offset_y)) != limit:
                 
-                next_case = board.get_board()[self.position[0] + offset][self.position[1]]
-                next_case_pos = (self.position[0] + offset, self.position[1])
+                next_case_pos = (self.position[0] + offset_x, self.position[1] + offset_y)
                 
                 # We check if the color of the id on the case is different from the piece's (can be a " ")
-                if next_case[1] != self.color:
+                if board.get_id(next_case_pos)[1] != self.color:
                     
                     # We add the move to the list of legal moves
                     legal_moves.append(next_case_pos)
                     
                     # We check if it was a piece and not a blank
-                    if next_case[0].isalpha():
+                    if board.get_id(next_case_pos)[0].isalpha():
                         
                         # We break the loop as we can't go further
                         break
@@ -176,38 +175,8 @@ class Rook(Piece):
                     break
                             
                 # We increase the offset by one
-                offset += dir
-                
-        #! LEFT and RIGHT
-            
-            # How much we increase the y value
-            offset = dir
-
-            # As long as the neighbouring case is in the board
-            while (self.position[1] + offset) != limit:
-                
-                next_case = board.get_board()[self.position[0]][self.position[1] + offset]
-                next_case_pos = (self.position[0], self.position[1] + offset)
-                
-                # We check if the color of the id on the case is different from the piece's (can be a " ")
-                if next_case[1] != self.color:
-                    
-                    # We add the move to the list of legal moves
-                    legal_moves.append(next_case_pos)
-                    
-                    # We check if it was a piece and not a blank
-                    if next_case[0].isalpha():
-                        
-                        # We break the loop as we can't go further
-                        break
-                    
-                # If the piece is the same color
-                else:
-                    # We break the loop as we can't go further
-                    break
-                            
-                # We increase the offset by one
-                offset += dir
+                offset_x += x
+                offset_y += y    
  
         return legal_moves
         
