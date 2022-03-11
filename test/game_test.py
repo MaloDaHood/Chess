@@ -163,8 +163,8 @@ class Game:
                 # Debug
                 print("Destination on " + str(destination[0]) + "/" + str(destination[1]) + " -> " + board.get_id(destination))
                         
-                # We check if the origin contains a piece and if the destination is empty                
-                if self.drag_id[0].isalpha() and board.get_id(destination) == "   ":
+                # We check if the origin contains a piece                
+                if self.drag_id[0].isalpha():
                     
                     # We stop the piece from being in dragging state
                     origin_piece.set_drag(False)
@@ -174,7 +174,16 @@ class Game:
                     
                     # Check if we can move the piece to the destination on the window
                     if origin_piece.move_to(board, destination):
-                    
+                        
+                        # We check if the destination has a piece on it
+                        if board.get_id(destination) != "   ":
+                            
+                            # We kill the piece
+                            pieces[board.get_id(destination)].die()
+                            
+                            # Debug
+                            print(self.drag_id + " kills " + board.get_id(destination))
+                            
                         # We move the piece to the destination on the board
                         board.move_piece(self.drag_origin, destination)
                         

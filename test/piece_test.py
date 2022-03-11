@@ -1,3 +1,4 @@
+from turtle import position
 import pygame
 from board_test import Board
 import sys
@@ -71,8 +72,9 @@ class Piece:
         li = []
         for i in range(8):
             for j in range(8):
-                if board.get_board()[i][j] == "   ":
-                    li.append((i, j))
+                li.append((i, j))
+                # if board.get_board()[i][j] == "   ":
+                #     li.append((i, j))
         return li
     
 class King(Piece):
@@ -88,7 +90,45 @@ class Queen(Piece):
 class Bishop(Piece):
     def __init__(self, position :"tuple[int , int]", id :str) -> None:
         super().__init__(position, id)
-        pass        
+        pass
+    
+    def get_legal_moves(self, board: Board) -> "list[tuple[int, int]]":
+        
+        legal_moves = []
+        
+        # We check UP/LEFT then DOWN/RIGHT then UP/RIGHT then DOWN/LEFT
+        for limit_x, limit_y, x, y in zip([-1, 8, -1, 8], [-1, 8, 8, -1], [-1, 1, -1, 1], [-1, 1, 1, -1]):
+            
+            offset_x = x
+            offset_y = y
+
+            # As long as the neighbouring case is in the board
+            while (self.position[0] + offset_x) != limit_x and (self.position[1] + offset_y) != limit_y:
+                
+                next_case_pos = (self.position[0] + offset_x, self.position[1] + offset_y)
+                
+                # We check if the color of the id on the case is different from the piece's (can be a " ")
+                if board.get_id(next_case_pos)[1] != self.color:
+                    
+                    # We add the move to the list of legal moves
+                    legal_moves.append(next_case_pos)
+                    
+                    # We check if it was a piece and not a blank
+                    if board.get_id(next_case_pos)[0].isalpha():
+                        
+                        # We break the loop as we can't go further
+                        break
+                
+                # If the piece is the same color
+                else:
+                    # We break the loop as we can't go further
+                    break
+                    
+                # We increase the offsets by their value (depends on the direction)
+                offset_x += x
+                offset_y += y
+            
+        return legal_moves
     
 class Knight(Piece):
     def __init__(self, position :"tuple[int , int]", id :str) -> None:
@@ -105,70 +145,70 @@ class Rook(Piece):
         
         legal_moves = []
         
-        # DOWN
-        # We check if we are on the last case
-        if self.position[0] != 7:
+        for limit, dir in zip([-1, 8], [-1, 1]):
+           
+        #! UP and DOWN
             
             # How much we increase the x value
-            offset = 1
-            
-            # As long as the neighbouring case is free
-            while (self.position[0] + offset) <= 7 and board.get_board()[self.position[0] + offset][self.position[1]] == "   ":
+            offset = dir
+
+            # As long as the neighbouring case is in the board
+            while (self.position[0] + offset) != limit:
                 
-                # We add the move to the list of legal moves
-                legal_moves.append((self.position[0] + offset, self.position[1]))
+                next_case = board.get_board()[self.position[0] + offset][self.position[1]]
+                next_case_pos = (self.position[0] + offset, self.position[1])
                 
-                # We increase the offset by one
-                offset += 1
-                                
-        # RIGHT
-        # We check if we are on the last case
-        if self.position[1] != 7:
-            
-            # How much we increase the y value
-            offset = 1
-            
-            # As long as the neighbouring case is free
-            while (self.position[1] + offset) <= 7 and board.get_board()[self.position[0]][self.position[1] + offset] == "   ":
-                
-                # We add the move to the list of legal moves
-                legal_moves.append((self.position[0], self.position[1] + offset))
-                
-                # We increase the offset by one
-                offset += 1
+                # We check if the color of the id on the case is different from the piece's (can be a " ")
+                if next_case[1] != self.color:
                     
-        # UP
-        # We check if we are on the last case
-        if self.position[0] != 0:
-        
-            # How much we increase the x value
-            offset = -1
-
-            # As long as the neighbouring case is free
-            while (self.position[0] + offset) >= 0 and board.get_board()[self.position[0] + offset][self.position[1]] == "   ":
+                    # We add the move to the list of legal moves
+                    legal_moves.append(next_case_pos)
+                    
+                    # We check if it was a piece and not a blank
+                    if next_case[0].isalpha():
+                        
+                        # We break the loop as we can't go further
+                        break
+                    
+                # If the piece is the same color
+                else:
+                    # We break the loop as we can't go further
+                    break
+                            
+                # We increase the offset by one
+                offset += dir
                 
-                # We add the move to the list of legal moves
-                legal_moves.append((self.position[0] + offset, self.position[1]))
-                
-                # We decrease the offset by one
-                offset -= 1
-                             
-        # LEFT
-        # We check if we are on the last case
-        if self.position[1] != 0:
+        #! LEFT and RIGHT
             
             # How much we increase the y value
-            offset = -1
+            offset = dir
 
-            # As long as the neighbouring case is free
-            while (self.position[1] + offset) >= 0 and board.get_board()[self.position[0]][self.position[1] + offset] == "   ":
+            # As long as the neighbouring case is in the board
+            while (self.position[1] + offset) != limit:
                 
-                # We add the move to the list of legal moves
-                legal_moves.append((self.position[0], self.position[1] + offset))
+                next_case = board.get_board()[self.position[0]][self.position[1] + offset]
+                next_case_pos = (self.position[0], self.position[1] + offset)
                 
-                # We decrease the offset by one
-                offset -= 1
-        
+                # We check if the color of the id on the case is different from the piece's (can be a " ")
+                if next_case[1] != self.color:
+                    
+                    # We add the move to the list of legal moves
+                    legal_moves.append(next_case_pos)
+                    
+                    # We check if it was a piece and not a blank
+                    if next_case[0].isalpha():
+                        
+                        # We break the loop as we can't go further
+                        break
+                    
+                # If the piece is the same color
+                else:
+                    # We break the loop as we can't go further
+                    break
+                            
+                # We increase the offset by one
+                offset += dir
+ 
         return legal_moves
         
 class Pawn(Piece):
@@ -185,18 +225,18 @@ class Pawn(Piece):
         offset = -1 if self.color == "W" else 1
         
         # We check if we are on the last case
-        if (self.position[0] + (1 * offset)) == 0 or (self.position[0] + (1 * offset)) == 8:
+        if self.position[0] == 0 or self.position[0] == 7:
             # We don't add any legal move
             pass
         
         else:
-            # We check if the first case in front of it is empty
-            if board.get_board()[self.position[0] + (1 * offset)][self.position[1]] == "   ":
+            # We check if the first case in front is empty
+            if board.get_board()[self.position[0] + offset][self.position[1]] == "   ":
                 
                 # We add the move to the list of legal moves
-                legal_moves.append((self.position[0] + (1 * offset), self.position[1]))
+                legal_moves.append((self.position[0] + offset, self.position[1]))
 
-                # We check if the piece already have moved during the game
+                # We check if the piece has already moved during the game
                 if not self.hasMoved:
                     
                     # We check if the second case in front is empty
@@ -204,5 +244,14 @@ class Pawn(Piece):
                         
                         # We add the move to the list of legal moves
                         legal_moves.append((self.position[0] + (2 * offset), self.position[1]))
+                        
+
+            for limit, dir in zip([0, 7], [-1, 1]):     
+            
+                if self.position[1] != limit:
+                    
+                    if board.get_board()[self.position[0] + offset][self.position[1] + dir][1].isalpha() and board.get_board()[self.position[0] + offset][self.position[1] + dir][1] != self.color:
+                        
+                        legal_moves.append((self.position[0] + offset, self.position[1] + dir))
             
         return legal_moves
