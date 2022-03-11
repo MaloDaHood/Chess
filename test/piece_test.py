@@ -71,7 +71,8 @@ class Piece:
         li = []
         for i in range(8):
             for j in range(8):
-                li.append((i, j))
+                if board.get_board()[i][j] == "   ":
+                    li.append((i, j))
         return li
     
 class King(Piece):
@@ -98,13 +99,84 @@ class Rook(Piece):
     def __init__(self, position :"tuple[int , int]", id :str) -> None:
         super().__init__(position, id)
         pass
+    
+    # Makes a list of all possible legal moves
+    def get_legal_moves(self, board: Board) -> "list[tuple[int, int]]":
+        
+        legal_moves = []
+        
+        # DOWN
+        # We check if we are on the last case
+        if self.position[0] != 7:
+            
+            # How much we increase the x value
+            offset = 1
+            
+            # As long as the neighbouring case is free
+            while (self.position[0] + offset) <= 7 and board.get_board()[self.position[0] + offset][self.position[1]] == "   ":
+                
+                # We add the move to the list of legal moves
+                legal_moves.append((self.position[0] + offset, self.position[1]))
+                
+                # We increase the offset by one
+                offset += 1
+                                
+        # RIGHT
+        # We check if we are on the last case
+        if self.position[1] != 7:
+            
+            # How much we increase the y value
+            offset = 1
+            
+            # As long as the neighbouring case is free
+            while (self.position[1] + offset) <= 7 and board.get_board()[self.position[0]][self.position[1] + offset] == "   ":
+                
+                # We add the move to the list of legal moves
+                legal_moves.append((self.position[0], self.position[1] + offset))
+                
+                # We increase the offset by one
+                offset += 1
+                    
+        # UP
+        # We check if we are on the last case
+        if self.position[0] != 0:
+        
+            # How much we increase the x value
+            offset = -1
+
+            # As long as the neighbouring case is free
+            while (self.position[0] + offset) >= 0 and board.get_board()[self.position[0] + offset][self.position[1]] == "   ":
+                
+                # We add the move to the list of legal moves
+                legal_moves.append((self.position[0] + offset, self.position[1]))
+                
+                # We decrease the offset by one
+                offset -= 1
+                             
+        # LEFT
+        # We check if we are on the last case
+        if self.position[1] != 0:
+            
+            # How much we increase the y value
+            offset = -1
+
+            # As long as the neighbouring case is free
+            while (self.position[1] + offset) >= 0 and board.get_board()[self.position[0]][self.position[1] + offset] == "   ":
+                
+                # We add the move to the list of legal moves
+                legal_moves.append((self.position[0], self.position[1] + offset))
+                
+                # We decrease the offset by one
+                offset -= 1
+        
+        return legal_moves
         
 class Pawn(Piece):
     def __init__(self, position :"tuple[int , int]", id :str) -> None:
         super().__init__(position, id)
         pass
 
-    # Makes a list of all the legal moves possible
+    # Makes a list of all possible legal moves
     def get_legal_moves(self, board :Board) -> "list[tuple[int, int]]":
         
         legal_moves = []
