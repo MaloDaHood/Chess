@@ -87,7 +87,33 @@ class King(Piece):
         
         legal_moves = []
         
+        # We check UP then DOWN then RIGHT then LEFT
+        for limit, pos, offset_x, offset_y in zip([-1, 8, 8, -1], [0, 0, 1, 1], [-1, 1, 0, 0], [0, 0, 1, -1]):
+            
+            # We check if the neighbouring case is in the board
+            if self.position[pos] + (offset_x + offset_y) != limit:
+                
+                next_case_pos = (self.position[0] + offset_x, self.position[1] + offset_y)
+                
+                # We check if the color of the id on the case is different from the piece's (can be a " ")
+                if board.get_id(next_case_pos)[1] != self.color:
+                    
+                    # We add the move to the list of legal moves
+                    legal_moves.append(next_case_pos)
         
+        # We check UP/LEFT then DOWN/RIGHT then UP/RIGHT then DOWN/LEFT
+        for limit_x, limit_y, offset_x, offset_y in zip([-1, 8, -1, 8], [-1, 8, 8, -1], [-1, 1, -1, 1], [-1, 1, 1, -1]):
+            
+            # We check if the neighbouring case is in the board
+            if self.position[0] + offset_x != limit_x and self.position[1] + offset_y != limit_y:
+                
+                next_case_pos = (self.position[0] + offset_x, self.position[1] + offset_y)
+                
+                # We check if the color of the id on the case is different from the piece's (can be a " ")
+                if board.get_id(next_case_pos)[1] != self.color:
+                    
+                    # We add the move to the list of legal moves
+                    legal_moves.append(next_case_pos)
         
         return legal_moves
         
