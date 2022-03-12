@@ -243,6 +243,68 @@ class Knight(Piece):
         super().__init__(position, id)
         pass
     
+    def get_legal_moves(self, board: Board) -> "list[tuple[int, int]]":
+        
+        legal_moves = []
+        
+        if self.position[0] + 2 <= 7:
+            
+            if self.position[1] + 1 <= 7:
+                
+                if board.get_id((self.position[0] + 2, self.position[1] + 1))[1] != self.color:
+                    
+                    legal_moves.append((self.position[0] + 2, self.position[1] + 1))
+                    
+            if self.position[1] - 1 >= 0:
+                
+                if board.get_id((self.position[0] + 2, self.position[1] - 1))[1] != self.color:
+                    
+                    legal_moves.append((self.position[0] + 2, self.position[1] - 1))
+        
+        if self.position[0] - 2 >= 0:
+            
+            if self.position[1] + 1 <= 7:
+                
+                if board.get_id((self.position[0] - 2, self.position[1] + 1))[1] != self.color:
+                    
+                    legal_moves.append((self.position[0] - 2, self.position[1] + 1))
+                    
+            if self.position[1] - 1 >= 0:
+                
+                if board.get_id((self.position[0] - 2, self.position[1] - 1))[1] != self.color:
+                    
+                    legal_moves.append((self.position[0] - 2, self.position[1] - 1))
+                    
+        if self.position[1] + 2 <= 7:
+            
+            if self.position[0] + 1 <= 7:
+                
+                if board.get_id((self.position[0] + 1, self.position[1] + 2))[1] != self.color:
+                    
+                    legal_moves.append((self.position[0] + 1, self.position[1] + 2)) 
+                    
+            if self.position[0] - 1 >= 0:
+                
+                if board.get_id((self.position[0] - 1, self.position[1] + 2))[1] != self.color:
+                    
+                    legal_moves.append((self.position[0] - 1, self.position[1] + 2))
+                    
+        if self.position[1] - 2 >= 0:
+            
+            if self.position[0] + 1 <= 7:
+                
+                if board.get_id((self.position[0] + 1, self.position[1] - 2))[1] != self.color:
+                    
+                    legal_moves.append((self.position[0] + 1, self.position[1] - 2)) 
+                    
+            if self.position[0] - 1 >= 0:
+                
+                if board.get_id((self.position[0] - 1, self.position[1] - 2))[1] != self.color:
+                    
+                    legal_moves.append((self.position[0] - 1, self.position[1] - 2)) 
+        
+        return legal_moves
+    
 class Rook(Piece):
     def __init__(self, position :"tuple[int , int]", id :str) -> None:
         super().__init__(position, id)
