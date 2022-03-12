@@ -178,11 +178,11 @@ class Game:
                         # We check if the destination has a piece on it
                         if board.get_id(destination) != "   ":
                             
-                            # We kill the piece
-                            pieces[board.get_id(destination)].die()
-                            
                             # Debug
                             print(self.drag_id + " kills " + board.get_id(destination))
+                            
+                            # We kill the piece
+                            pieces[board.get_id(destination)].die(board)
                             
                         # We move the piece to the destination on the board
                         board.move_piece(self.drag_origin, destination)

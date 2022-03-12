@@ -1,5 +1,3 @@
-from os import R_OK
-from turtle import position
 import pygame
 from board_test import Board
 import sys
@@ -14,6 +12,7 @@ class Piece:
         self.isAlive = True
         self.hasMoved = False
         self.isDragged = False
+        
         # We load the image using the id without the last char 
         self.image = pygame.image.load("assets/" + id[:-1] + ".png")
         
@@ -47,8 +46,9 @@ class Piece:
         return self.isAlive
     
     # Kills the piece
-    def die(self) -> None:
+    def die(self, board :Board) -> None:
         self.isAlive = False
+        board.set_case(self.position, "   ")
         
     # Returns True if the piece is currently being dragged
     def is_dragged(self) -> bool:
@@ -70,13 +70,8 @@ class Piece:
     
     # Makes a list of all the legal moves possible
     def get_legal_moves(self, board :Board) -> "list[tuple[int, int]]":
-        li = []
-        for i in range(8):
-            for j in range(8):
-                li.append((i, j))
-                # if board.get_board()[i][j] == "   ":
-                #     li.append((i, j))
-        return li
+        # We return an empty list as the method is used by the sub-classes
+        return []
     
 class King(Piece):
     def __init__(self, position :"tuple[int , int]", id :str) -> None:
@@ -114,6 +109,9 @@ class King(Piece):
                     
                     # We add the move to the list of legal moves
                     legal_moves.append(next_case_pos)
+                    
+        #! Castling
+        
         
         return legal_moves
         
@@ -125,73 +123,14 @@ class Queen(Piece):
     def get_legal_moves(self, board: Board) -> "list[tuple[int, int]]":
         
         legal_moves = []
-                
-        #! Code from Bishop class
-        # We check UP/LEFT then DOWN/RIGHT then UP/RIGHT then DOWN/LEFT
-        for limit_x, limit_y, x, y in zip([-1, 8, -1, 8], [-1, 8, 8, -1], [-1, 1, -1, 1], [-1, 1, 1, -1]):
-            
-            offset_x = x
-            offset_y = y
-
-            # As long as the neighbouring case is in the board
-            while (self.position[0] + offset_x) != limit_x and (self.position[1] + offset_y) != limit_y:
-                
-                next_case_pos = (self.position[0] + offset_x, self.position[1] + offset_y)
-                
-                # We check if the color of the id on the case is different from the piece's (can be a " ")
-                if board.get_id(next_case_pos)[1] != self.color:
-                    
-                    # We add the move to the list of legal moves
-                    legal_moves.append(next_case_pos)
-                    
-                    # We check if it was a piece and not a blank
-                    if board.get_id(next_case_pos)[0].isalpha():
-                        
-                        # We break the loop as we can't go further
-                        break
-                
-                # If the piece is the same color
-                else:
-                    # We break the loop as we can't go further
-                    break
-                    
-                # We increase the offsets by their value (depends on the direction)
-                offset_x += x
-                offset_y += y
-            
-        #! Code from Rook class    
-        # We check UP then DOWN then RIGHT then LEFT
-        for limit, pos, x, y in zip([-1, 8, 8, -1], [0, 0, 1, 1], [-1, 1, 0, 0], [0, 0, 1, -1]):
-            
-            # How much we increase the x value
-            offset_x = x
-            offset_y = y
-
-            # As long as the neighbouring case is in the board
-            while (self.position[pos] + (offset_x + offset_y)) != limit:
-                
-                next_case_pos = (self.position[0] + offset_x, self.position[1] + offset_y)
-                
-                # We check if the color of the id on the case is different from the piece's (can be a " ")
-                if board.get_id(next_case_pos)[1] != self.color:
-                    
-                    # We add the move to the list of legal moves
-                    legal_moves.append(next_case_pos)
-                    
-                    # We check if it was a piece and not a blank
-                    if board.get_id(next_case_pos)[0].isalpha():
-                        
-                        # We break the loop as we can't go further
-                        break
-                    
-                # If the piece is the same color
-                else:
-                    # We break the loop as we can't go further
-                    break
-                            
-                # We increase the offset by one
-                offset_x += x
-                offset_y += y
+        
+        # We create a fake Rook and a fake Bishop objects
+        fake_rook = Rook(self.position, "R" + self.color + "0")
+        fake_bishop = Bishop(self.position, "B" + self.color + "0")
+        
+        # We use their legal moves depending on the queen's position and color
+        legal_moves += fake_rook.get_legal_moves(board)
+        legal_moves += fake_bishop.get_legal_moves(board)
         
         return legal_moves
     
@@ -384,13 +323,23 @@ class Pawn(Piece):
                         # We add the move to the list of legal moves
                         legal_moves.append((self.position[0] + (2 * offset), self.position[1]))
                         
-
+            # We check if we can attack on the LEFT then the RIGHt
             for limit, dir in zip([0, 7], [-1, 1]):     
             
+                next_case_pos = (self.position[0] + offset, self.position[1] + dir)
+            
+                # We check that we are not on the edge of the board
                 if self.position[1] != limit:
                     
-                    if board.get_board()[self.position[0] + offset][self.position[1] + dir][1].isalpha() and board.get_board()[self.position[0] + offset][self.position[1] + dir][1] != self.color:
+                    # We check if the case has an ennemy piece on it
+                    if board.get_id(next_case_pos)[0].isalpha() and board.get_id(next_case_pos)[1] != self.color:
                         
-                        legal_moves.append((self.position[0] + offset, self.position[1] + dir))
+                        # We add the move to the list of legal moves
+                        legal_moves.append(next_case_pos)
+                    
+                    #! En passant -> doesn't kill for now
+                    if board.get_id(next_case_pos) == "   " and board.get_id((self.position[0], self.position[1] + dir))[0].isalpha() and board.get_id((self.position[0], self.position[1] + dir))[1] != self.color:
+                        
+                        legal_moves.append(next_case_pos)
             
         return legal_moves

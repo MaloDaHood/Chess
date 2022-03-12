@@ -20,12 +20,12 @@ class Board:
         
         self.test_board = [
             ["   ", "   ", "   ", "   ", "   ", "   ", "   ", "   "],
-            ["   ", "BB1", "   ", "   ", "   ", "   ", "   ", "   "],
+            ["   ", "   ", "   ", "   ", "   ", "   ", "   ", "   "],
+            ["   ", "   ", "   ", "   ", "   ", "   ", "   ", "   "],
+            ["   ", "   ", "   ", "QW1", "   ", "   ", "   ", "   "],
             ["   ", "   ", "   ", "   ", "   ", "   ", "   ", "   "],
             ["   ", "   ", "   ", "   ", "   ", "   ", "   ", "   "],
             ["   ", "   ", "   ", "   ", "   ", "   ", "   ", "   "],
-            ["   ", "   ", "   ", "   ", "   ", "   ", "   ", "   "],
-            ["   ", "   ", "   ", "   ", "   ", "BW1", "   ", "   "],
             ["   ", "   ", "   ", "   ", "   ", "   ", "   ", "   "]
         ]
           
@@ -40,6 +40,9 @@ class Board:
     # Displays the board on full window
     def display_board(self, window :pygame.surface.Surface) -> None:
         window.blit(self.background, (0,0))
+        
+    def set_case(self, position :"tuple[int, int]", new_id :str) -> None:
+        self.board[position[0]][position[1]] = new_id
         
     # Displays all pieces at their own positions (in pixels)
     def display_pieces(self, window :pygame.surface.Surface, pieces :"dict[str, Piece]") -> None:
