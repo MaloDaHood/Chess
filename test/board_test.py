@@ -18,13 +18,13 @@ class Board:
             ["RW1", "HW1", "BW1", "QW1", "KW1", "BW2", "HW2", "RW2"]
         ]
         
-        self.test_board = [
+        self.tboard = [
             ["   ", "   ", "   ", "   ", "   ", "   ", "   ", "   "],
             ["   ", "   ", "   ", "   ", "   ", "   ", "   ", "   "],
             ["   ", "   ", "   ", "   ", "   ", "   ", "   ", "   "],
-            ["   ", "   ", "   ", "QW1", "   ", "   ", "   ", "   "],
+            ["   ", "   ", "   ", "PW1", "   ", "   ", "   ", "   "],
             ["   ", "   ", "   ", "   ", "   ", "   ", "   ", "   "],
-            ["   ", "   ", "   ", "   ", "   ", "   ", "   ", "   "],
+            ["   ", "   ", "   ", "   ", "   ", "   ", "PB1", "   "],
             ["   ", "   ", "   ", "   ", "   ", "   ", "   ", "   "],
             ["   ", "   ", "   ", "   ", "   ", "   ", "   ", "   "]
         ]
@@ -32,10 +32,6 @@ class Board:
         # Creates the background board
         self.background = pygame.image.load("assets/board.png")
         self.background = pygame.transform.scale(self.background, (800, 800))
-    
-    # Returns the board 
-    def get_board(self) -> "list[list[str]]":
-        return self.board
     
     # Displays the board on full window
     def display_board(self, window :pygame.surface.Surface) -> None:
@@ -48,12 +44,12 @@ class Board:
     def display_pieces(self, window :pygame.surface.Surface, pieces :"dict[str, Piece]") -> None:
         for id in pieces:
             # We don't display the piece if it's dead
-            if pieces[id].is_alive():
+            if pieces[id].is_alive:
                 # We check if the pieces has pixels coordinates or not
-                if pieces[id].is_dragged():
-                    window.blit(pieces[id].get_image(), pieces[id].get_px_position())
+                if pieces[id].is_dragged:
+                    window.blit(pieces[id].image, pieces[id].px_position)
                 else:
-                    window.blit(pieces[id].get_image(), (pieces[id].get_position()[1] * 100, pieces[id].get_position()[0] * 100))
+                    window.blit(pieces[id].image, (pieces[id].position[1] * 100, pieces[id].position[0] * 100))
                 
     # Moves a piece from origin to destination in the board
     def move_piece(self, origin :"tuple[int, int]", destination :"tuple[int, int]") -> None:
@@ -67,11 +63,19 @@ class Board:
         return self.board[position[0]][position[1]]
     
     # Displays a square on the origin of the player's drag and squares on each legal move
-    def display_markers(self, window :pygame.surface.Surface, legal_moves :"list[tuple[int, int]]", position :"tuple[int, int]") -> None:
+    def display_markers(self, window :pygame.surface.Surface, legal_moves :"list[list]", position :"tuple[int, int]") -> None:
         
         # We display a square on the origin of the drag
         pygame.draw.rect(window, (96,193,216), pygame.Rect((position[1] * 100) + 10, (position[0] * 100) + 10, 80, 80))
         
         # We display a square on each legal move
         for move in legal_moves:
-            pygame.draw.rect(window, (0,193,0), pygame.Rect((move[1] * 100) + 10, (move[0] * 100) + 10, 80, 80))
+            
+            if move[2].isalpha():
+            
+                pygame.draw.rect(window, (0,193,0), pygame.Rect((move[1] * 100) + 10, (move[0] * 100) + 10, 80, 80))
+                
+            else:
+                
+                pygame.draw.rect(window, (193,0,0), pygame.Rect((move[1] * 100) + 10, (move[0] * 100) + 10, 80, 80))
+                

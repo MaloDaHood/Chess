@@ -8,13 +8,13 @@ if __name__ == "__main__":
     game = Game()
     board = Board()
 
-    window = game.get_window()
+    window = game.window
     
     # We create a dict containing every piece linked to its id
-    pieces = game.spawn_pieces(board.get_board())
+    pieces = game.spawn_pieces(board.board)
     
     # Main game loop
-    while(game.is_running()):
+    while(game.is_running):
         
         game.handle_inputs(board, pieces)
         
@@ -22,20 +22,20 @@ if __name__ == "__main__":
         board.display_board(window)
         
         # We Check if the player is currently dragging a piece
-        if game.is_dragging():
+        if game.is_dragging:
             
             pygame.mouse.set_visible(False)
             
             # We check if the player has selected an empty spot as the origin
-            if board.get_id(game.get_drag_origin()) == "   ":
+            if board.get_id(game.drag_origin) == "   ":
                 # Stop the drag
                 game.switch_dragging()
             # We place the piece's image at the middle of the pointer
             else:
-                pieces[board.get_id(game.get_drag_origin())].center_on_pointer()
+                pieces[board.get_id(game.drag_origin)].center_on_pointer()
 
             # We display the blue and green squares
-            board.display_markers(window, pieces[game.get_drag_id()].get_legal_moves(board), game.get_drag_origin())
+            board.display_markers(window, pieces[game.drag_id].get_legal_moves(board), game.drag_origin)
             
         else:
             pygame.mouse.set_visible(True)

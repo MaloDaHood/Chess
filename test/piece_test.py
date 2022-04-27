@@ -9,67 +9,45 @@ class Piece:
         self.px_position = (position[1] * 100, position[0] * 100)
         self.id = id # Ex: "RB1" -> Rook Black 1
         self.color = id[1] # Either "B" or "W"
-        self.isAlive = True
-        self.hasMoved = False
-        self.isDragged = False
+        self.is_alive = True
+        self.has_moved = False
+        self.is_dragged = False
         
         # We load the image using the id without the last char 
         self.image = pygame.image.load("assets/" + id[:-1] + ".png")
-        
-    # Returns the position of the piece relative to the board
-    def get_position(self) -> "tuple[int, int]":
-        return self.position
-    
-    # Sets the position of the piece relative to the board
-    def set_position(self, position :"tuple[int, int]") -> None:
-        self.position = position
-        
-    # Returns the position of the piece in pixels
-    def get_px_position(self) -> "tuple[int, int]":
-        return self.px_position
     
     # Centers the piece's image onto the mouse pointer
     def center_on_pointer(self) -> None:
         # We offset by 50 pixels because the image is 100*100 px 
         self.px_position = (pygame.mouse.get_pos()[0] - 50, pygame.mouse.get_pos()[1] - 50)
     
-    # Returns the piece's id
-    def get_id(self) -> str:
-        return self.id
-    
-    # Returns the piece's image
-    def get_image(self) -> pygame.surface.Surface:
-        return self.image
-    
-    # Returns True if the piece is alive
-    def is_alive(self) -> bool:
-        return self.isAlive
-    
     # Kills the piece
     def die(self, board :Board) -> None:
-        self.isAlive = False
+        self.is_alive = False
         board.set_case(self.position, "   ")
-        
-    # Returns True if the piece is currently being dragged
-    def is_dragged(self) -> bool:
-        return self.isDragged
-    
-    # Sets the state of self.isDragged
-    def set_drag(self, is_dragged :bool) -> None:
-        self.isDragged = is_dragged
     
     # Moves the piece to a different position and returns True if it worked
-    def move_to(self, board :Board, destination :"tuple[int, int]") -> bool:
+    def move_to(self, board :Board, destination :"tuple[int, int]", pieces :"dict[str, Piece]") -> bool:
+        
         print("Legal moves : " + str(self.get_legal_moves(board)))
+        
         for move in self.get_legal_moves(board):
-            if destination == move:
+            
+            if destination == (move[0], move[1]):
+                
                 self.position = destination
-                self.hasMoved = True;
+                self.has_moved = True;
+                
+                if move[2] != "NONE":
+                    
+                    pieces[move[2]].die(board)
+                
                 return True
+            
         return False
     
     # Makes a list of all the legal moves possible
-    def get_legal_moves(self, board :Board) -> "list[tuple[int, int]]":
+    def get_legal_moves(self, board :Board) -> "list[list]":
         # We return an empty list as the method is used by the sub-classes
         return []
     
@@ -78,7 +56,7 @@ class King(Piece):
         super().__init__(position, id)
         pass
         
-    def get_legal_moves(self, board: Board) -> "list[tuple[int, int]]":
+    def get_legal_moves(self, board: Board) -> "list[list]":
         
         legal_moves = []
         
@@ -94,7 +72,11 @@ class King(Piece):
                 if board.get_id(next_case_pos)[1] != self.color:
                     
                     # We add the move to the list of legal moves
-                    legal_moves.append(next_case_pos)
+                    legal_moves.append([next_case_pos[0], next_case_pos[1], "NONE"])
+                    
+                    if board.get_id(next_case_pos)[0].isalpha():
+                        
+                        legal_moves[-1][2] = board.get_id(next_case_pos)
         
         # We check UP/LEFT then DOWN/RIGHT then UP/RIGHT then DOWN/LEFT
         for limit_x, limit_y, offset_x, offset_y in zip([-1, 8, -1, 8], [-1, 8, 8, -1], [-1, 1, -1, 1], [-1, 1, 1, -1]):
@@ -108,7 +90,11 @@ class King(Piece):
                 if board.get_id(next_case_pos)[1] != self.color:
                     
                     # We add the move to the list of legal moves
-                    legal_moves.append(next_case_pos)
+                    legal_moves.append([next_case_pos[0], next_case_pos[1], "NONE"])
+                    
+                    if board.get_id(next_case_pos)[0].isalpha():
+                        
+                        legal_moves[-1][2] = board.get_id(next_case_pos)
                     
         #! Castling
         
@@ -120,7 +106,7 @@ class Queen(Piece):
         super().__init__(position, id)
         pass
     
-    def get_legal_moves(self, board: Board) -> "list[tuple[int, int]]":
+    def get_legal_moves(self, board: Board) -> "list[list]":
         
         legal_moves = []
         
@@ -139,7 +125,7 @@ class Bishop(Piece):
         super().__init__(position, id)
         pass
     
-    def get_legal_moves(self, board: Board) -> "list[tuple[int, int]]":
+    def get_legal_moves(self, board: Board) -> "list[list]":
         
         legal_moves = []
         
@@ -158,10 +144,12 @@ class Bishop(Piece):
                 if board.get_id(next_case_pos)[1] != self.color:
                     
                     # We add the move to the list of legal moves
-                    legal_moves.append(next_case_pos)
+                    legal_moves.append([next_case_pos[0], next_case_pos[1], "NONE"])
                     
                     # We check if it was a piece and not a blank
                     if board.get_id(next_case_pos)[0].isalpha():
+                        
+                        legal_moves[-1][2] = board.get_id(next_case_pos)
                         
                         # We break the loop as we can't go further
                         break
@@ -182,7 +170,7 @@ class Knight(Piece):
         super().__init__(position, id)
         pass
     
-    def get_legal_moves(self, board: Board) -> "list[tuple[int, int]]":
+    def get_legal_moves(self, board: Board) -> "list[list]":
         
         legal_moves = []
         
@@ -192,13 +180,21 @@ class Knight(Piece):
                 
                 if board.get_id((self.position[0] + 2, self.position[1] + 1))[1] != self.color:
                     
-                    legal_moves.append((self.position[0] + 2, self.position[1] + 1))
+                    legal_moves.append([self.position[0] + 2, self.position[1] + 1, "NONE"])
+                    
+                    if board.get_id((self.position[0] + 2, self.position[1] + 1))[0].isalpha():
+                        
+                        legal_moves[-1][2] = board.get_id((self.position[0] + 2, self.position[1] + 1))
                     
             if self.position[1] - 1 >= 0:
                 
                 if board.get_id((self.position[0] + 2, self.position[1] - 1))[1] != self.color:
                     
-                    legal_moves.append((self.position[0] + 2, self.position[1] - 1))
+                    legal_moves.append([self.position[0] + 2, self.position[1] - 1, "NONE"])
+                    
+                    if board.get_id((self.position[0] + 2, self.position[1] - 1))[0].isalpha():
+                        
+                        legal_moves[-1][2] = board.get_id((self.position[0] + 2, self.position[1] - 1))
         
         if self.position[0] - 2 >= 0:
             
@@ -206,13 +202,21 @@ class Knight(Piece):
                 
                 if board.get_id((self.position[0] - 2, self.position[1] + 1))[1] != self.color:
                     
-                    legal_moves.append((self.position[0] - 2, self.position[1] + 1))
+                    legal_moves.append([self.position[0] - 2, self.position[1] + 1, "NONE"])
+                    
+                    if board.get_id((self.position[0] - 2, self.position[1] + 1))[0].isalpha():
+                        
+                        legal_moves[-1][2] = board.get_id((self.position[0] - 2, self.position[1] + 1))
                     
             if self.position[1] - 1 >= 0:
                 
                 if board.get_id((self.position[0] - 2, self.position[1] - 1))[1] != self.color:
                     
-                    legal_moves.append((self.position[0] - 2, self.position[1] - 1))
+                    legal_moves.append([self.position[0] - 2, self.position[1] - 1, "NONE"])
+                    
+                    if board.get_id((self.position[0] - 2, self.position[1] - 1))[0].isalpha():
+                        
+                        legal_moves[-1][2] = board.get_id((self.position[0] - 2, self.position[1] - 1))
                     
         if self.position[1] + 2 <= 7:
             
@@ -220,13 +224,21 @@ class Knight(Piece):
                 
                 if board.get_id((self.position[0] + 1, self.position[1] + 2))[1] != self.color:
                     
-                    legal_moves.append((self.position[0] + 1, self.position[1] + 2)) 
+                    legal_moves.append([self.position[0] + 1, self.position[1] + 2, "NONE"])
+                    
+                    if board.get_id((self.position[0] + 1, self.position[1] + 2))[0].isalpha():
+                        
+                        legal_moves[-1][2] = board.get_id((self.position[0] + 1, self.position[1] + 2))
                     
             if self.position[0] - 1 >= 0:
                 
                 if board.get_id((self.position[0] - 1, self.position[1] + 2))[1] != self.color:
                     
-                    legal_moves.append((self.position[0] - 1, self.position[1] + 2))
+                    legal_moves.append([self.position[0] - 1, self.position[1] + 2, "NONE"])
+                    
+                    if board.get_id((self.position[0] - 1, self.position[1] + 2))[0].isalpha():
+                        
+                        legal_moves[-1][2] = board.get_id((self.position[0] - 1, self.position[1] + 2))
                     
         if self.position[1] - 2 >= 0:
             
@@ -234,13 +246,21 @@ class Knight(Piece):
                 
                 if board.get_id((self.position[0] + 1, self.position[1] - 2))[1] != self.color:
                     
-                    legal_moves.append((self.position[0] + 1, self.position[1] - 2)) 
+                    legal_moves.append([self.position[0] + 1, self.position[1] - 2, "NONE"])
+                    
+                    if board.get_id((self.position[0] + 1, self.position[1] - 2))[0].isalpha():
+                        
+                        legal_moves[-1][2] = board.get_id((self.position[0] + 1, self.position[1] - 2))
                     
             if self.position[0] - 1 >= 0:
                 
                 if board.get_id((self.position[0] - 1, self.position[1] - 2))[1] != self.color:
                     
-                    legal_moves.append((self.position[0] - 1, self.position[1] - 2)) 
+                    legal_moves.append([self.position[0] - 1, self.position[1] - 2, "NONE"])
+                    
+                    if board.get_id((self.position[0] - 1, self.position[1] - 2))[0].isalpha():
+                        
+                        legal_moves[-1][2] = board.get_id((self.position[0] - 1, self.position[1] - 2))
         
         return legal_moves
     
@@ -250,7 +270,7 @@ class Rook(Piece):
         pass
     
     # Makes a list of all possible legal moves
-    def get_legal_moves(self, board: Board) -> "list[tuple[int, int]]":
+    def get_legal_moves(self, board: Board) -> "list[list]":
         
         legal_moves = []
         
@@ -270,10 +290,12 @@ class Rook(Piece):
                 if board.get_id(next_case_pos)[1] != self.color:
                     
                     # We add the move to the list of legal moves
-                    legal_moves.append(next_case_pos)
+                    legal_moves.append([next_case_pos[0], next_case_pos[1], "NONE"])
                     
                     # We check if it was a piece and not a blank
                     if board.get_id(next_case_pos)[0].isalpha():
+                        
+                        legal_moves[-1][2] = board.get_id(next_case_pos)
                         
                         # We break the loop as we can't go further
                         break
@@ -295,7 +317,7 @@ class Pawn(Piece):
         pass
 
     # Makes a list of all possible legal moves
-    def get_legal_moves(self, board :Board) -> "list[tuple[int, int]]":
+    def get_legal_moves(self, board :Board) -> "list[tuple[int, int, str]]":
         
         legal_moves = []
         
@@ -304,24 +326,27 @@ class Pawn(Piece):
         
         # We check if we are on the last case
         if self.position[0] == 0 or self.position[0] == 7:
+            
+            print("new piece")
+            
             # We don't add any legal move
             pass
         
         else:
             # We check if the first case in front is empty
-            if board.get_board()[self.position[0] + offset][self.position[1]] == "   ":
+            if board.board[self.position[0] + offset][self.position[1]] == "   ":
                 
                 # We add the move to the list of legal moves
-                legal_moves.append((self.position[0] + offset, self.position[1]))
+                legal_moves.append([self.position[0] + offset, self.position[1], "NONE"])
 
                 # We check if the piece has already moved during the game
-                if not self.hasMoved:
+                if not self.has_moved:
                     
                     # We check if the second case in front is empty
-                    if board.get_board()[self.position[0] + (2 * offset)][self.position[1]] == "   ":
+                    if board.board[self.position[0] + (2 * offset)][self.position[1]] == "   ":
                         
                         # We add the move to the list of legal moves
-                        legal_moves.append((self.position[0] + (2 * offset), self.position[1]))
+                        legal_moves.append([self.position[0] + (2 * offset), self.position[1], "NONE"])
                         
             # We check if we can attack on the LEFT then the RIGHt
             for limit, dir in zip([0, 7], [-1, 1]):     
@@ -335,11 +360,10 @@ class Pawn(Piece):
                     if board.get_id(next_case_pos)[0].isalpha() and board.get_id(next_case_pos)[1] != self.color:
                         
                         # We add the move to the list of legal moves
-                        legal_moves.append(next_case_pos)
+                        legal_moves.append([next_case_pos[0], next_case_pos[1], board.get_id(next_case_pos)])
                     
-                    #! En passant -> doesn't kill for now
                     if board.get_id(next_case_pos) == "   " and board.get_id((self.position[0], self.position[1] + dir))[0].isalpha() and board.get_id((self.position[0], self.position[1] + dir))[1] != self.color:
                         
-                        legal_moves.append(next_case_pos)
+                        legal_moves.append([next_case_pos[0], next_case_pos[1], board.get_id((self.position[0], self.position[1] + dir))])
             
         return legal_moves

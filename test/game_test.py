@@ -9,19 +9,11 @@ class Game:
         self.window = pygame.display.set_mode((800, 800))
         pygame.display.set_caption("Chess")
         
-        self.running = True
-        self.dragging = False
+        self.is_running = True
+        self.is_dragging = False
         self.drag_origin = (-1, -1)
         self.drag_id = "   "
         self.turn = "W"
-        
-    # Returns the game window
-    def get_window(self) -> pygame.surface.Surface:
-        return self.window
-        
-    # Returns True if the game is running
-    def is_running(self) -> bool:
-        return self.running
         
     # Returns True if the game is over
     def check_if_over(self) -> None:
@@ -35,18 +27,7 @@ class Game:
         
     # Changes the state of self.dragging
     def switch_dragging(self) -> None:
-        self.dragging = not self.dragging
-        
-    # Returns if the player is currently dragging a piece
-    def is_dragging(self) -> bool:
-        return self.dragging
-    
-    # Returns the origin coordinates of the drag
-    def get_drag_origin(self) -> "tuple[int, int]":
-        return self.drag_origin
-        
-    def get_drag_id(self) -> str:
-        return self.drag_id
+        self.is_dragging = not self.is_dragging
         
     # Creates a dictionnary containing all the different pieces linked to their id
     def spawn_pieces(self, board :"list[list[str]]") -> "dict[str, Piece]":
@@ -118,7 +99,7 @@ class Game:
         for event in pygame.event.get():
             
             if event.type == pygame.QUIT:
-                self.running = False
+                self.is_running = False
             
             # We check if the mouse button is pushed or released        
             elif event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.MOUSEBUTTONUP :
@@ -131,7 +112,7 @@ class Game:
         if mouse_down:
             
             # We check if the player is not already dragging
-            if not self.dragging:
+            if not self.is_dragging:
                 
                 # We get the coodinates of the origin of the drag relative to the board
                 self.drag_origin = self.convert_pos(pygame.mouse.get_pos())
@@ -142,17 +123,17 @@ class Game:
                 print("Origin on " + str(self.drag_origin[0]) + "/" + str(self.drag_origin[1]) + " -> " + self.drag_id)
                 
                 # We switch to self.dragging = True if the player moved the right color
-                self.dragging = self.drag_id[1] == self.turn
+                self.is_dragging = self.drag_id[1] == self.turn
                 
                 # If we are dragging we toggle it on the piece object
-                if self.dragging:
-                    pieces[self.drag_id].set_drag(True)
+                if self.is_dragging:
+                    pieces[self.drag_id].is_dragged = True
         
         # Otherwise when the mouse button is released
         else:
         
             # We check if the player is dragging
-            if self.dragging:
+            if self.is_dragging:
                 
                 # We get the coodinates of the destination of the drag relative to the board
                 destination = self.convert_pos(pygame.mouse.get_pos())
@@ -167,22 +148,13 @@ class Game:
                 if self.drag_id[0].isalpha():
                     
                     # We stop the piece from being in dragging state
-                    origin_piece.set_drag(False)
+                    origin_piece.is_dragged = False
                     
                     # Sets the position value back to the origin 
-                    origin_piece.set_position(self.drag_origin)
+                    origin_piece.position = self.drag_origin
                     
                     # Check if we can move the piece to the destination on the window
-                    if origin_piece.move_to(board, destination):
-                        
-                        # We check if the destination has a piece on it
-                        if board.get_id(destination) != "   ":
-                            
-                            # Debug
-                            print(self.drag_id + " kills " + board.get_id(destination))
-                            
-                            # We kill the piece
-                            pieces[board.get_id(destination)].die(board)
+                    if origin_piece.move_to(board, destination, pieces):
                             
                         # We move the piece to the destination on the board
                         board.move_piece(self.drag_origin, destination)
@@ -192,9 +164,9 @@ class Game:
                     
                 else:
                     # We put the piece back on the origin
-                    origin_piece.set_position(self.drag_origin)
+                    origin_piece.position = self.drag_origin
                     
                     # We stop the piece from being in dragging state
-                    origin_piece.set_drag(False)
+                    origin_piece.is_dragged = False
                     
-                self.dragging = False
+                self.is_dragging = False
