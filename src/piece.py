@@ -170,7 +170,7 @@ class Knight(Piece):
         super().__init__(position, id)
         pass
     
-    def get_legal_moves(self, board: Board) -> "list[list]":
+    def get_legal_moves(self, board: Board) -> "list[list]":  #! NEEDS A LOT OF OPTIMIZING
         
         legal_moves = []
         
